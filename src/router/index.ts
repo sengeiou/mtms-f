@@ -35,7 +35,7 @@ const uap_url = process.env.UAP_URL;
 function createRouterGuards(router: Router) {
   router.beforeEach((to, from, next) => {
     // 从localstorage中获取token
-    const token = null;
+    const token = sessionStorage.getItem("UAP_accessToken");
     if (token) {
       next();
     } else {
@@ -68,7 +68,7 @@ function routerPush(vm: any, routerPath:string){
 function setupRouter(app: App) {
   app.use(router);
   // 创建路由守卫
-  // createRouterGuards(router);
+  createRouterGuards(router);
 }
 
 export {setupRouter, routerPush};
