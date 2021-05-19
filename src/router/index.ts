@@ -1,11 +1,17 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw, Router } from "vue-router";
 import Home from "../views/Home.vue";
+import Index from "../views/Index.vue";
 import Hello from "../views/Hello.vue";
 import { App } from "vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
+    name: "Index",
+    component: Index
+  },
+  {
+    path: "/Home",
     name: "Home",
     component: Home
   },
@@ -33,7 +39,7 @@ function createRouterGuards(router: Router) {
     if (token) {
       next();
     } else {
-      window.location.href = uap_url;
+      // window.location.href = uap_url;
     }
   });
 
@@ -47,8 +53,22 @@ const router = createRouter({
   routes
 });
 
-export function setupRouter(app: App) {
+// export function setupRouter(app: App) {
+//   app.use(router);
+//   // 创建路由守卫
+//   createRouterGuards(router);
+// }
+
+function routerPush(vm: any, routerPath:string){
+
+  vm.$router.push({
+    path: "/about"
+  });
+}
+function setupRouter(app: App) {
   app.use(router);
   // 创建路由守卫
-  createRouterGuards(router);
+  // createRouterGuards(router);
 }
+
+export {setupRouter, routerPush};
