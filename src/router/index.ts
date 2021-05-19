@@ -39,7 +39,8 @@ function createRouterGuards(router: Router) {
     if (token) {
       next();
     } else {
-      // window.location.href = uap_url;
+      //向UAP发送消息，跳转到登录页面
+      window.parent.postMessage('toLogin',process.env.VUE_APP_UAP_SERVER_PATH);
     }
   });
 
