@@ -1,12 +1,17 @@
 import { createRouter, createWebHashHistory, RouteRecordRaw, Router } from "vue-router";
-import Home from "../views/Home.vue";
-import Index from "../views/Index.vue";
-import Hello from "../views/Hello.vue";
+import Home from "@/views/Home.vue";
+import Index from "@/views/Index.vue";
+import Hello from "@/views/Hello.vue";
+import Login from "@/views/Login.vue";
 import { App } from "vue";
 
 const routes: Array<RouteRecordRaw> = [
   {
     path: "/",
+    name: "Login",
+    component: Login
+  },{
+    path: "/Index",
     name: "Index",
     component: Index
   },
@@ -33,11 +38,15 @@ const routes: Array<RouteRecordRaw> = [
 const uap_url = process.env.UAP_URL;
 
 function createRouterGuards(router: Router) {
-  router.beforeEach((to, from, next) => {
+  router.beforeEach((to, from) => {
+    console.log("fullPath:"+from.fullPath);
+    if(from.fullPath == '/'){
+      return true;
+    }
     // 从localstorage中获取token
     const token = sessionStorage.getItem("UAP_accessToken");
     if (token) {
-      next();
+      return true;
     } else {
       //向UAP发送消息，跳转到登录页面
       window.parent.postMessage('toLogin',process.env.VUE_APP_UAP_SERVER_PATH);
