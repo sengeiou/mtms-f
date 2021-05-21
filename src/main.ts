@@ -1,7 +1,7 @@
 import { createApp } from "vue";
 import App from "./App.vue";
 import Login from "./views/Login.vue";
-import { setupRouter } from "./router";
+import { setupRouter } from "./router/index";
 
 import store from "./store";
 

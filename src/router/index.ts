@@ -39,7 +39,7 @@ const uap_url = process.env.UAP_URL;
 
 function createRouterGuards(router: Router) {
   router.beforeEach((to, from) => {
-    console.log("fullPath:"+from.fullPath);
+    //过滤登录页面
     if(from.fullPath == '/'){
       return true;
     }
