@@ -70,7 +70,7 @@
         <a-table
                 :columns="columns"
                 :row-key="record => record.id"
-                :data-source="dataSource"
+                :data-source="data"
                 :pagination="pagination"
                 :loading="loading"
                 @change="handleTableChange"
@@ -83,10 +83,30 @@
   </div>
 </template>
 
-<script>
+<script >
   import { defineComponent, computed, reactive, toRaw} from 'vue';
   import { usePagination } from 'vue-request';
-  // import { routerPush } from "../router";
+  import axios from 'axios';
+  //让ajax携带cookie
+  axios.defaults.withCredentials=true;
+  //全局axios配置
+  const axiosInst = axios.create({
+    baseURL: process.env.VUE_APP_GW_SERVER_PATH,
+    timeout: 1000
+  });
+  // 添加响应拦截器
+  // axiosInst.interceptors.response.use(function (response) {
+  //   if(response.status != "200" || response.data.code != "200"){
+  //     return Promise.reject(response.data.message);
+  //   }
+  //   // console.log("header:"+response.headers["UAP_accessToken"]);
+  //   // console.log("header:"+JSON.stringify(response.headers));
+  //   // 对响应数据做点什么
+  //   return response.data.data;
+  // }, function (error) {
+  //   // 对响应错误做点什么
+  //   return Promise.reject(error);
+  // });
 
   const columns = [
     {
@@ -119,11 +139,8 @@
     },
   ];
 
-  const queryData = params => {
-    return `http://gateway.diligrp.com:8285/dili-uap/userApi/list.api?${new URLSearchParams(params)}`;
-  };
 
-let app = {
+  export default defineComponent( {
     setup() {
       const formState = reactive({
         name: '',
@@ -138,31 +155,56 @@ let app = {
         console.log('submit!', toRaw(formState));
       };
 
-      const { data: dataSource, run, loading, current, pageSize } = usePagination(queryData, {
-        formatResult: res => {res.data},
+      // --------------- 表格属性 ---------------
+      const queryData = params => {
+        return {
+          url:`${process.env.VUE_APP_GW_SERVER_PATH}/dili-uap/userApi/listPage.api?sort=id&order=asc&${new URLSearchParams(params)}`,
+          credentials:'include'
+        };
+      }
+      const { data, run, loading, current, pageSize, total } = usePagination(queryData, {
+        formatResult: res => {{
+          // console.log("formatResult:"+JSON.stringify(res));
+          return res;
+        }},
         pagination: {
           currentKey: 'page',
           pageSizeKey: 'rows',
+          totalKey:'total'
         },
       });
-      const pagination = computed(() => ({
-        total: 100,
+      console.log("total:"+total.value+",data:"+JSON.stringify(data));
+
+      const pagination = computed(() =>
+      {
+        console.log("data:::"+JSON.stringify(data));
+        return ({
+        total: total.value,
         current: current.value,
+        defaultPageSize:10,
+        showSizeChanger:true,
+        showTotal: total => `共 ${total} 条数据`,
+        pageSizeOptions: ['10', '20', '50', '100'],
         pageSize: pageSize.value,
-      }));
+      })});
 
       const handleTableChange = (pag, filters, sorter) => {
         run({
-          results: pag.pageSize,
+          rows: pag.pageSize,
           page: pag?.current,
-          sortField: sorter.field,
-          sortOrder: sorter.order,
+          sort: sorter.field,
+          order: sorter.order,
           ...filters,
         });
       };
+      // setTimeout(()=>{
+      //   console.log("_rawValue:"+JSON.stringify(data.value.result));
+      //   }, 2000)
+      // const val = [{"cardNumber":"123456789000","cellphone":"13888888888","created":"2018-05-21 09:44:29","departmentId":9,"description":"超级管理员","email":"uap@diligrp.com","firmCode":"group","gender":0,"id":1,"lastLoginTime":"2021-05-25 14:34:59","locked":"2021-05-17 11:08:02","metadata":{},"modified":"2021-05-17 11:09:11","oldPassword":"123456","password":"3949BA59ABBE56E057","position":"职位","positionId":14,"realName":"超级管理员","serialNumber":"","state":1,"userName":"admin","userRoles":"集团管理员,哈哈哈,消息中心管理员,进门收费角色,商户审批员,供应链管理员,哈达系统管理员,进门收费管理员,沈阳管理员,克兰测试角色,杭州水产智能档位管理员,杭州水产溯源管理员"}];
+
 
       return {
-        dataSource,
+        data: data.rows,
         pagination,
         loading,
         columns,
@@ -180,9 +222,7 @@ let app = {
     mounted() {
       //console.log(process.env.VUE_APP_UAP_SERVER_PATH);
     }
-  };
-
-  export default defineComponent(app);
+  });
 
 
 </script>

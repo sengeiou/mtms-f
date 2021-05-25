@@ -16,6 +16,8 @@
     if(response.status != "200" || response.data.code != "200"){
       return Promise.reject(response.data.message);
     }
+    // console.log("header:"+response.headers["UAP_accessToken"]);
+    console.log("header:"+JSON.stringify(response.headers));
     // 对响应数据做点什么
     return response.data.data;
   }, function (error) {
