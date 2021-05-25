@@ -84,7 +84,7 @@
 </template>
 
 <script >
-  import { defineComponent, computed, reactive, toRaw} from 'vue';
+  import { watch,ref, toRefs, defineComponent, computed, reactive, toRaw} from 'vue';
   import { usePagination } from 'vue-request';
   import axios from 'axios';
   //让ajax携带cookie
@@ -139,6 +139,12 @@
     },
   ];
 
+  const queryData = params => {
+    return {
+      url:`${process.env.VUE_APP_GW_SERVER_PATH}/dili-uap/userApi/listPage.api?sort=id&order=asc&${new URLSearchParams(params)}`,
+      credentials:'include'
+    };
+  }
 
   export default defineComponent( {
     setup() {
@@ -156,16 +162,11 @@
       };
 
       // --------------- 表格属性 ---------------
-      const queryData = params => {
-        return {
-          url:`${process.env.VUE_APP_GW_SERVER_PATH}/dili-uap/userApi/listPage.api?sort=id&order=asc&${new URLSearchParams(params)}`,
-          credentials:'include'
-        };
-      }
-      const { data, run, loading, current, pageSize, total } = usePagination(queryData, {
+      let totalRef = ref(0);
+      const { data, run, loading, current, pageSize } = usePagination(queryData, {
         formatResult: res => {{
-          // console.log("formatResult:"+JSON.stringify(res));
-          return res;
+          totalRef.value = res.total;
+          return res.rows;
         }},
         pagination: {
           currentKey: 'page',
@@ -173,20 +174,17 @@
           totalKey:'total'
         },
       });
-      console.log("total:"+total.value+",data:"+JSON.stringify(data));
+      // console.log("total:"+total.value+",data:"+JSON.stringify(data));
 
-      const pagination = computed(() =>
-      {
-        console.log("data:::"+JSON.stringify(data));
-        return ({
-        total: total.value,
+      const pagination = computed(() => ({
+        total: totalRef.value,
         current: current.value,
         defaultPageSize:10,
         showSizeChanger:true,
         showTotal: total => `共 ${total} 条数据`,
         pageSizeOptions: ['10', '20', '50', '100'],
         pageSize: pageSize.value,
-      })});
+      }));
 
       const handleTableChange = (pag, filters, sorter) => {
         run({
@@ -204,7 +202,7 @@
 
 
       return {
-        data: data.rows,
+        data: data,
         pagination,
         loading,
         columns,
