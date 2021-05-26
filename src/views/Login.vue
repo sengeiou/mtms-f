@@ -56,8 +56,6 @@
           routerPush(dataJson.url);
         }
       },false);
-      //向UAP发送消息，设置origin
-      window.parent.postMessage('{"cmd":"getToken", "systemCode":"MTMS"}',process.env.VUE_APP_UAP_SERVER_PATH);
       //从网关向UAP获取token和功能权限
       axiosInst.get("/dili-uap/login/getToken.action", {
                 params: {
@@ -69,6 +67,8 @@
         sessionStorage.setItem("UAP_refreshToken", response.refreshToken);
         sessionStorage.setItem("menuUrls", response.menuUrls);
         sessionStorage.setItem("resourceCodes", response.resourceCodes);
+        //向UAP发送消息，设置origin
+        window.parent.postMessage('{"cmd":"logined", "systemCode":"MTMS"}',process.env.VUE_APP_UAP_SERVER_PATH);
         //登录成功，跳转到Index
         routerPush("/Index");
       })
