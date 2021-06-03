@@ -88,7 +88,7 @@ export {setupRouter, routerPush};
  */
 
 const router = createRouter({
-  history: createWebHistory(process.env.VUE_APP_GW_SERVER_PATH),
+  history: createWebHistory(process.env.VUE_APP_APIURL),
   routes,
 })
 

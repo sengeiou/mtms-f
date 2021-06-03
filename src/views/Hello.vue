@@ -217,9 +217,7 @@
         onSubmit,
       };
     },
-    mounted() {
-      //console.log(process.env.VUE_APP_UAP_SERVER_PATH);
-    }
+  
   });
 
 
