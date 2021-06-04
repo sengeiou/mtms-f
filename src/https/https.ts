@@ -64,8 +64,11 @@ const service = axios.create({
 })
 // 请求拦截器
 service.interceptors.request.use((config: any) => {
-    if (localStorage.getItem('token')) { //判断token是否存在
-        config.headers.token = localStorage.getItem('token'); //将token设置进请求头
+    if (sessionStorage.getItem('token')) { //判断token是否存在
+        config.headers.UAP_accessToken = sessionStorage.getItem('token'); //将token设置进请求头
+    }
+    if (sessionStorage.getItem('rtoken')) { //判断rToken是否存在
+        config.headers.UAP_refreshToken = sessionStorage.getItem('rtoken'); //将rToken设置进请求头
     }
     return config
 }, (error) => {

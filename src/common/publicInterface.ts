@@ -13,8 +13,8 @@ export interface routeData {
 
 //分页数据接口
 export interface pageData {
-    current: number,
-    pageSize: number,
+    page: number,
+    rows: number,
     total: number,
     showSizeChanger: boolean,
     change?: (page: number, pageSize?: number) => void,

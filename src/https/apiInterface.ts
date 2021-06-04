@@ -7,9 +7,16 @@ namespace apiInterface {
 
   //运输单列表接口
   export interface TransportListParams {
-    currentPage: number,
-    pageSize: number
+    page: number,
+    rows: number,
+    state: string, 
+    keyword: string, 
+    keyvalue: string
+    orderTime:  string,
+    serveTime: string,
+    firmId: number,
   }
+
 
   //运输单详情接口
   export interface TransportDetailParams {
