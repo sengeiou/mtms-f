@@ -12,7 +12,7 @@ export const getToken = (params: apiInterface.getTokenParams): any => {
 
 // 获取运输单列表
 export const getTransportList = (params: apiInterface.TransportListParams): any => {
-  return servicePost('/mtms/api/transport/listPage', params, false)
+  return servicePost('/mtms/api/transportOrder/listPage', params, false)
 }
 
 // 获取运输单详情

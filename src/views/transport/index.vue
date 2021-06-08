@@ -49,8 +49,22 @@
       </a-form>
     </div>
     <div class="talbe">
-      <a-table :dataSource="tableData" bordered :columns="tableColumns" rowKey="uid"/>
+      <a-table 
+        rowKey="id"
+        :dataSource="tableData" 
+        :columns="tableColumns"  
+        :pagination="false"
+        :loading="tableLoading"
+        bordered 
+      ></a-table>
     </div>
+    <DiliPagination
+        :page="page"
+        :rows="rows"
+        :total="total"
+        @change="change"
+        @showSizeChange="showSizeChange"
+      ></DiliPagination>
   </div>
 </template>
 <script lang="ts">
@@ -60,168 +74,222 @@
   onMounted,
   toRefs,
   // onUnmounted,
-  onUpdated,
+  // onUpdated,
+  computed,
   getCurrentInstance,
   ref,
-} from "vue";
-import moment, { Moment } from 'moment';
-import 'moment/dist/locale/zh-cn';
-moment.locale('zh-cn'); 
-// import { moment } from "../../common/moment";
-import { getTransportList } from "../../https/api";
-interface contentData {
-  searchData: {
-    state: string, 
-    keyword: string, 
-    keyvalue: string,
-    // shipperName: string; 
-    // shipperCellphone: string; 
-    // code: string; 
-    orderTime:  Array<any>;
-    serveTime: Array<any>;
-    firmId: number;
-  
-  };
-  // stateData: Array<any>;
-  onSearch: () => void;
+  } from "vue";
 
-  tableData: Array<any>;
-  tableColumns: Array<any>;
+  // import moment, { Moment } from 'moment';
+  import moment from 'moment';
+  import 'moment/dist/locale/zh-cn';
+  moment.locale('zh-cn'); 
+  // import { moment } from "../../common/moment";
+  import { getTransportList } from "../../https/api";
+  import DiliPagination from "../../components/DiliPagination.vue";
+ 
 
-}
-export default defineComponent({
-  name: "transport",
-  setup() {
-    const { proxy }: any = getCurrentInstance(); 
-    const data: contentData = reactive({
-      searchData: {
-        state: "0", 
-        keyword: "shipperName",
-        keyvalue: "",
-        // shipperName: "", 
-        // shipperCellphone: "", 
-        // code: "", 
-        orderTime:  [], 
-        serveTime: [], 
-        firmId: 8,
-      },
-      onSearch: () => {
-        getTransportTable();
-      },
-
-
-      tableData: [],
-      tableColumns: [
-        {
-          title: "下单时间",
-          dataIndex: "createTime",
-          key: "createTime",
-          width: 120,
-        },
-        {
-          title: "客户姓名",
-          dataIndex: "shipperName",
-          key: "shipperName",
-          width: 120,
-        },
-        {
-          title: "客户手机号",
-          dataIndex: "shipperCellphone",
-          key: "shipperCellphone",
-          width: 120,
-        },
-        {
-          title: "物流运输单编号",
-          dataIndex: "code",
-          key: "code",
-          width: 120,
-        },
-        {
-          title: "用车时间",
-          dataIndex: "createTime",
-          key: "createTime",
-          width: 120,
-        },
-        {
-          title: "用车类型",
-          dataIndex: "vehicleType",
-          key: "vehicleType",
-          width: 120,
-        },
-        {
-          title: "用车数量",
-          dataIndex: "vehicleNumber",
-          key: "vehicleNumber",
-          width: 120,
-        },
-        {
-          title: "报价金额",
-          dataIndex: "offer",
-          key: "offer",
-          width: 120,
-        },
-        {
-          title: "发货地址",
-          dataIndex: "shipperAddress",
-          key: "shipperAddress",
-          width: 120,
-        },
-        {
-          title: "收货地址",
-          dataIndex: "deleveryAddress",
-          key: "deleveryAddress",
-          width: 120,
-        },
-        {
-          title: "状态",
-          dataIndex: "state",
-          key: "state",
-          width: 120,
-        },
-        
-      ],
-
-    });
-     //获取状态列表
-    /*  const getStateList = () => {
-      getTransportState().then((res: any) => {
-        if (res.code == "200") {
-          data.stateList = res.result;
-        } else {
-          proxy.$message.error(res.message);
-        }
-      });
-    }; */
+  interface contentData {
+    searchData: {
+      state: string, 
+      keyword: string, 
+      keyvalue: string,
+      orderTime:  Array<any>;
+      serveTime: Array<any>;
+      firmId: number;
     
-    // 获取运输单列表
-     const getTransportTable = () => {
-      const params = {
+    };
+    onSearch: () => void;
+
+    tableData: Array<any>;
+    tableColumns: Array<any>;
+    page: number,
+    rows:number,
+    total: number;
+    tableLoading: boolean;
+
+
+  }
+  export default defineComponent({
+    name: "transport",
+    setup() {
+      const { proxy }: any = getCurrentInstance(); 
+      const data: contentData = reactive({
+        searchData: {
+          state: "0", 
+          keyword: "shipperName",
+          keyvalue: "",
+          orderTime:  [], 
+          serveTime: [], 
+          firmId: 8,
+        },
+        onSearch: () => {
+          getTransportTable();
+        },
+
+        tableData: [],
+        tableColumns: [
+          {
+            title: "下单时间",
+            dataIndex: "createTime",
+            key: "createTime",
+            width: 120,
+          },
+          {
+            title: "客户姓名",
+            dataIndex: "shipperName",
+            key: "shipperName",
+            width: 120,
+          },
+          {
+            title: "客户手机号",
+            dataIndex: "shipperCellphone",
+            key: "shipperCellphone",
+            width: 120,
+          },
+          {
+            title: "物流运输单编号",
+            dataIndex: "code",
+            key: "code",
+            width: 120,
+          },
+          {
+            title: "用车时间",
+            dataIndex: "createTime",
+            key: "createTime",
+            width: 120,
+          },
+          {
+            title: "用车类型",
+            dataIndex: "vehicleType",
+            key: "vehicleType",
+            width: 120,
+          },
+          {
+            title: "用车数量",
+            dataIndex: "vehicleNumber",
+            key: "vehicleNumber",
+            width: 120,
+          },
+          {
+            title: "报价金额",
+            dataIndex: "offer",
+            key: "offer",
+            width: 120,
+          },
+          {
+            title: "发货地址",
+            dataIndex: "shipperAddress",
+            key: "shipperAddress",
+            width: 120,
+          },
+          {
+            title: "收货地址",
+            dataIndex: "deleveryAddress",
+            key: "deleveryAddress",
+            width: 120,
+          },
+          {
+            title: "状态",
+            dataIndex: "state",
+            filters: [
+              {
+                text: '已创建',
+                value: 1,
+              },
+              {
+                text: '已接单',
+                value: 2,
+              },
+            ],
+            key: "state",
+            width: 120,
+          },
+          
+        ],
+        //分页数据
         page: 1,
         rows: 10,
-        state: data.searchData.state, 
-        keyword: data.searchData.keyword, 
-        keyvalue: data.searchData.keyvalue,
-        orderTime:  data.searchData.orderTime.join('-'),
-        serveTime: data.searchData.serveTime.join('-'),
-        firmId: 8
-      };
-      getTransportList(params).then((res: any) => {
-        if (res.success) {
-          data.tableData = res.data.rows;
-        } else {
-          proxy.$message.error(res.message);
-        }
-      });
-    };
-    return {
-      ...toRefs(data),
-      moment,
+        total: 0,
+        tableLoading: false,
 
-    };
-  }
-})
+      });
+       //分页变化
+      const change = (current: number) => {
+        data.page = current;
+        getTransportTable();
+      };
+      const showSizeChange = (current: number, size: number) => {
+        data.page = current;
+        data.rows = size;
+        getTransportTable();
+      };
+  
+       // 获取运输单列表
+      const getTransportTable = (): any=> {
+        data.tableLoading = true;
+        const params = {
+          page: data.page,
+          rows: data.rows,
+          state: data.searchData.state, 
+          keyword: data.searchData.keyword, 
+          keyvalue: data.searchData.keyvalue,
+          orderTime:  data.searchData.orderTime.join('-'),
+          serveTime: data.searchData.serveTime.join('-'),
+          firmId: 8
+        };
+        getTransportList(params).then((res: any) => {
+          data.tableLoading = false;
+          if (res.success) {
+            data.tableData = res.data.rows;
+            data.total = res.data.total;
+          } else {
+            proxy.$message.error(res.message);
+          }
+        });
+      };
+       //当前显示条数变化
+      onMounted(() => {
+        getTransportTable();
+        //添加监听窗口尺寸变化事件，实时更新窗口高度
+        // window.addEventListener("resize", tableListener, false);
+      });
+      return {
+        ...toRefs(data),
+        moment,
+        change,
+        showSizeChange
+      };
+    },
+    components: {
+      DiliPagination,
+    },
+  })
 
 
 
 
 </script>
+<style lang="less" scoped>
+.container {
+  height: 100%;
+  width: 100%;
+  .search {
+    padding-bottom: 4px;
+    border-bottom: 1px solid #f5f5f5;
+  }
+  .btns {
+    padding: 10px 0;
+  }
+  .table {
+    height: calc(100% - 137px);
+    :deep(.ant-table-body) {
+      overflow: auto !important;
+    }
+  }
+  .pagination {
+    height: 40px;
+  }
+}
+</style>
+

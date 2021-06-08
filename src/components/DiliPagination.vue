@@ -2,9 +2,9 @@
   <div class="pagination flex-ed">
     <a-pagination
       :show-total="(total) => `共${total}条`"
-      :current="current"
+      :page="page"
       :total="total"
-      :pageSize="pageSize"
+      :rows="rows"
       :showSizeChanger="showSizeChanger"
       @change="change"
       @showSizeChange="showSizeChange"
@@ -18,11 +18,11 @@ import { pageData } from "../common/publicInterface";
 export default defineComponent({
   name: "DiliPagination",
   props: {
-    current: {
+    page: {
       type: Number,
       default: 1,
     },
-    pageSize: {
+    rows: {
       type: Number,
       default: 10,
     },
@@ -32,17 +32,17 @@ export default defineComponent({
     },
   },
   setup(props, context) {
-    const { current, pageSize,total } = toRefs(props);
+    const { page, rows,total } = toRefs(props);
     const data: pageData = reactive({
-      current: current,
-      pageSize: pageSize,
+      page: page,
+      rows: rows,
       total: total,
       showSizeChanger: true,
       change: (page: number) => {
         context.emit("change", page);
       },
-      showSizeChange: (current: number, size: number) => {
-        context.emit("showSizeChange", current,size);
+      showSizeChange: (page: number, size: number) => {
+        context.emit("showSizeChange", page, size);
       },
     });
     return {

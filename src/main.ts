@@ -14,6 +14,7 @@ import {
   ConfigProvider,
   Breadcrumb,
   Select,
+  Pagination,
 
 } from "ant-design-vue";
 
@@ -33,6 +34,7 @@ const AntArr = [ Menu,
   ConfigProvider,
   Breadcrumb,
   Select,
+  Pagination,
   
 ];
 const useAnt = (AntArr: Array<any>) => {
