@@ -1,10 +1,14 @@
 <template>
   <div class="container">
     <div class="search">
-      <a-form layout="inline" :model="searchData" >
-        <a-form-item label="状态">
-          <a-select v-model:value="searchData.state">
-            <a-select-option value="0">全部</a-select-option>
+      <a-form ref="searchFormRef" 
+        layout="inline" 
+        :model="searchData" 
+        :rules="rules"
+      >
+        <a-form-item label="状态" >
+          <a-select v-model:value="searchData.state" style="width: 150px">
+            <a-select-option value="0" >全部</a-select-option>
             <a-select-option value="1">待接单</a-select-option>
             <a-select-option value="2">已接单</a-select-option>
             <a-select-option value="3">已完成</a-select-option>
@@ -12,14 +16,14 @@
             <a-select-option value="5">已删除</a-select-option>
           </a-select>
         </a-form-item>
-        <a-form-item label="关键字">
-          <a-input-group compact>
-            <a-select v-model:value="searchData.keyword">
+        <a-form-item label="关键字"  name="keyvalue">
+          <a-input-group compact  style="width: 330px">
+            <a-select v-model:value="searchData.keyword" style="width: 40%">
               <a-select-option value="shipperName">客户姓名</a-select-option>
               <a-select-option value="shipperCellphone">客户手机号</a-select-option>
               <a-select-option value="code">物流运输单号</a-select-option>
             </a-select>
-            <a-input v-model:value="searchData.keyvalue" />
+            <a-input v-model:value="searchData.keyvalue" style="width: 60%" />
           </a-input-group>
         </a-form-item>
         <a-form-item label="下单时间">
@@ -42,7 +46,7 @@
           />
         </a-form-item>
         <a-form-item >
-          <a-button style="margin-right: 10px">清空</a-button>
+          <a-button style="margin-right: 10px" @click="resetSearchForm">清空</a-button>
           <a-button type="primary" @click="search">查询</a-button>
         </a-form-item>
       </a-form>
@@ -56,6 +60,14 @@
         :loading="tableLoading"
         bordered 
       >
+      <template #state="{ record }">
+        <span v-if="record.state==1">待接单</span>
+        <span v-if="record.state==2">已接单</span>
+        <span v-if="record.state==3">已完成</span>
+        <span v-if="record.state==4">已失效</span>
+        <span v-if="record.state==5">已删除</span>
+        <span v-else></span>
+      </template>
       <template #action="{ record }">
         <span>
           <a href="#" @click="openDetail(record)">查看</a>
@@ -159,17 +171,6 @@
               </a-input> 
             </a-form-item>
           </a-col>
-          
-        <!--   <a-col :span="8">
-            <a-form-item label="">
-              <a-input
-                disabled
-                v-model:value="modalDetailFormData."
-              >
-              </a-input> 
-            </a-form-item>
-          </a-col> -->
-          
         </a-row>
         <a-row>
           <a-col :span="24">
@@ -234,20 +235,11 @@
               </a-input> 
             </a-form-item>
           </a-col>
-          <!-- <a-col :span="8">
-            <a-form-item label="服务时间">
-              <a-input
-                disabled
-                v-model:value="modalDetailFormData.offer"
-              >
-              </a-input> 
-            </a-form-item>
-          </a-col> -->
           <a-col :span="24">
             <a-form-item label="备注">
               <a-input
                 disabled
-                v-model:value="modalDetailFormData.offer"
+                v-model:value="modalDetailFormData.notes"
               >
               </a-input> 
             </a-form-item>
@@ -288,7 +280,6 @@
       firmId: number,
     
     };
-    search: () => void;
     // 列表
     tableData: Array<any>;
     tableColumns: Array<any>;
@@ -303,104 +294,99 @@
     modalDetailFormData: any;
     modalDetailVisible: boolean;
     modalTransportItemColumns: Array<any>;
-    openDetail: (record: any) => void;
-    handleDetailCancel: () => void;
   }
   export default defineComponent({
     name: "transport",
     setup() {
       const { proxy }: any = getCurrentInstance(); 
-      const moment: any = inject('moment')
+      const moment: any = inject('moment');
+      const searchFormRef = ref();
       const data: contentData = reactive({
         // 搜索
         searchData: {
-          state: "0", 
-          keyword: "shipperName",
-          keyvalue: "",
+          state: '0', 
+          keyword: 'shipperName',
+          keyvalue: '',
           orderTime:  [], 
           serveTime: [], 
           firmId: 8,
         },
-        search: () => {
-          getTransportTable();
-        },
-
+        
         // 列表
         tableData: [],
         tableColumns: [
           {
-            title: "下单时间",
-            dataIndex: "createTime",
-            key: "createTime",
+            title: '下单时间',
+            dataIndex: 'createTime',
+            key: 'createTime',
             width: 120,
           },
           {
-            title: "客户姓名",
-            dataIndex: "shipperName",
-            key: "shipperName",
+            title: '客户姓名',
+            dataIndex: 'shipperName',
+            key: 'shipperName',
             width: 120,
           },
           {
-            title: "客户手机号",
-            dataIndex: "shipperCellphone",
-            key: "shipperCellphone",
+            title: '客户手机号',
+            dataIndex: 'shipperCellphone',
+            key: 'shipperCellphone',
             width: 120,
           },
           {
-            title: "物流运输单编号",
-            dataIndex: "code",
-            key: "code",
+            title: '物流运输单编号',
+            dataIndex: 'code',
+            key: 'code',
             width: 120,
           },
           {
-            title: "用车时间",
-            dataIndex: "createTime",
-            key: "createTime",
+            title: '用车时间',
+            dataIndex: 'createTime',
+            key: 'createTime',
             width: 120,
           },
           {
-            title: "用车类型",
-            dataIndex: "vehicleType",
-            key: "vehicleType",
+            title: '用车类型',
+            dataIndex: 'vehicleType',
+            key: 'vehicleType',
             width: 120,
           },
           {
-            title: "用车数量",
-            dataIndex: "vehicleNumber",
-            key: "vehicleNumber",
+            title: '用车数量',
+            dataIndex: 'vehicleNumber',
+            key: 'vehicleNumber',
             width: 120,
           },
           {
-            title: "报价金额",
-            dataIndex: "offer",
-            key: "offer",
+            title: '报价金额',
+            dataIndex: 'offer',
+            key: 'offer',
             width: 120,
           },
           {
-            title: "发货地址",
-            dataIndex: "shipperAddress",
-            key: "shipperAddress",
+            title: '发货地址',
+            dataIndex: 'shipperAddress',
+            key: 'shipperAddress',
             width: 120,
           },
           {
-            title: "收货地址",
-            dataIndex: "deleveryAddress",
-            key: "deleveryAddress",
+            title: '收货地址',
+            dataIndex: 'deleveryAddress',
+            key: 'deleveryAddress',
             width: 120,
           },
           {
-            title: "状态",
-            dataIndex: "state",
-            key: "state",
+            title: '状态',
+            dataIndex: 'state',
             width: 120,
+            slots: { customRender: 'state' },
           },
           {
-            title: "操作",
-            dataIndex: "Action",
-            slots: { customRender: "action" },
+            title: '操作',
+            dataIndex: 'action',
+            slots: { customRender: 'action' },
             width: 200,
           },
-          
         ],
 
         //分页数据
@@ -414,61 +400,76 @@
         modalDetailFormData: {},
         modalTransportItemColumns:[
           {
-            title: "货物",
-            dataIndex: "goodsName",
-            key: "goodsName",
+            title: '货物',
+            dataIndex: 'goodsName',
+            key: 'goodsName',
             width: 120,
           },
           {
-            title: "件数",
-            dataIndex: "number",
-            key: "number",
+            title: '件数',
+            dataIndex: 'number',
+            key: 'number',
             width: 120,
           },
           {
-            title: "件重（KG）",
-            dataIndex: "unitWeight",
-            key: "unitWeight",
+            title: '件重（KG）',
+            dataIndex: 'unitWeight',
+            key: 'unitWeight',
             width: 120,
           },
           {
-            title: "总重（KG）",
-            dataIndex: "totalWeight",
-            key: "totalWeight",
+            title: '总重（KG）',
+            dataIndex: 'totalWeight',
+            key: 'totalWeight',
             width: 120,
           },
         ],
-        openDetail: (record: any) => {
-          const params = {
-            id: record.id,
-          };
-          TransportDetail(params).then((res: any) => {
-            if (res.success) {
-              data.modalDetailVisible = true;
-              data.modalDetailFormData = res.data;
-            } else {
-              proxy.$message.error(res.message);
-            }
-          });
-        },
-        handleDetailCancel: () => {
-          // modalDetailFormRef.value.resetFields();
-          data.modalDetailVisible = false;
-          // data.modalDetailEdit = false;
-        },
+        
 
       });
-       //分页变化
-      const change = (current: number) => {
-        data.page = current;
-        getTransportTable();
+      
+      // 关键字自定义校验
+      const validateKeyvalue = async (rule: any, value: any) => {
+        switch(data.searchData.keyword) {
+          case 'shipperName':
+            if (value.length > 5){
+              return Promise.reject('限50个字符');
+            }
+            break;
+          case 'shipperCellphone':
+            if (value.length > 11){
+              return Promise.reject('限11个数字');
+            }
+            break;
+          case 'code':
+            if (value.length > 20){
+              return Promise.reject('限20个字符');
+            }
+            break;
+          default:
+            return Promise.resolve();
+        }
+
       };
-      const showSizeChange = (current: number, size: number) => {
-        data.page = current;
-        data.rows = size;
-        getTransportTable();
+
+      // 搜索&重置
+      const resetSearchForm = () => {
+        searchFormRef.value.resetFields();
       };
-  
+      const search = () => {
+        searchFormRef.value.validate()
+        .then(() => {
+          console.log('values');
+          getTransportTable();
+        })
+        .catch((error: any) => {
+          console.log('error', error);
+        });
+      };
+      const rules = {
+        keyvalue: [{ validator: validateKeyvalue, trigger: 'change' }],
+      };
+
        // 获取运输单列表
       const getTransportTable = (): any=> {
         data.tableLoading = true;
@@ -492,22 +493,52 @@
           }
         });
       };
-      
-
-
-
+       //分页变化
+      const change = (current: number) => {
+        data.page = current;
+        getTransportTable();
+      };
+      const showSizeChange = (current: number, size: number) => {
+        data.page = current;
+        data.rows = size;
+        getTransportTable();
+      };
        //当前显示条数变化
       onMounted(() => {
         getTransportTable();
-        //添加监听窗口尺寸变化事件，实时更新窗口高度
-        // window.addEventListener("resize", tableListener, false);
       });
+
+      // 查看详情
+      const openDetail = (record: any) => {
+        const params = {
+          id: record.id,
+        };
+        TransportDetail(params).then((res: any) => {
+          if (res.success) {
+            data.modalDetailVisible = true;
+            data.modalDetailFormData = res.data;
+          } else {
+            proxy.$message.error(res.message);
+          }
+        });
+      };
+      const handleDetailCancel = () => {
+        data.modalDetailVisible = false;
+      };
+
+
       return {
         ...toRefs(data),
+        rules,
+        search,
+        resetSearchForm,
+        searchFormRef,
         moment,
         proxy,
         change,
-        showSizeChange
+        showSizeChange,
+        openDetail,
+        handleDetailCancel,
       };
     },
     components: {
@@ -515,30 +546,19 @@
     },
   })
 
-
-
-
 </script>
 <style lang="less" scoped>
 .container {
   height: 100%;
   width: 100%;
+
   .search {
-    padding-bottom: 4px;
-    border-bottom: 1px solid #f5f5f5;
-  }
-  .btns {
-    padding: 10px 0;
-  }
-  .table {
-    height: calc(100% - 137px);
-    :deep(.ant-table-body) {
-      overflow: auto !important;
+    padding: 10px 20px;
+    .ant-form-inline .ant-form-item {
+      margin-right: 26px;
     }
   }
-  .pagination {
-    height: 40px;
-  }
+
 }
 </style>
 
