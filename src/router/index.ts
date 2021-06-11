@@ -43,9 +43,17 @@ const routes: Array<RouteRecordRaw> = [
     path: "/transport",
     name: "Transport",
     meta: {
-      title: "运输单列表",//路由名称。
+      title: "运输单列表",
     },
     component: () => import('../views/transport/index.vue')
+  },
+  {
+    path: "/loading",
+    name: "Loading",
+    meta: {
+      title: "运输单列表",
+    },
+    component: () => import('../views/loading/index.vue')
   },
 ];
 

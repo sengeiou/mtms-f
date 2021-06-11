@@ -16,17 +16,17 @@ export const getTransportList = (params: apiInterface.TransportListParams): any 
 }
 
 // 获取运输单详情
-export const TransportDetail = (params: apiInterface.TransportDetailParams): any => {
+export const getTransportDetail = (params: apiInterface.TransportDetailParams): any => {
   return servicePost('/mtms/api/transport/detail', params, false)
 }
 
 // 获取装卸单列表
-export const LoadingList = (params: apiInterface.LoadingListParams): any => {
-  return servicePost('/mtms/api/loading/detail', params, false)
+export const getLoadingList = (params: apiInterface.LoadingListParams): any => {
+  return servicePost('/mtms/api/loadingOrder/listPage', params, false)
 }
 
 // 获取装卸单列表详情
-export const LoadingDetail = (params: apiInterface.LoadingDetailParams): any => {
-  return servicePost('/mtms/api/oadingOrder/listPage', params, false)
+export const getLoadingDetail = (params: apiInterface.LoadingDetailParams): any => {
+  return servicePost('/mtms/api/loading/detail', params, false)
 }
 
